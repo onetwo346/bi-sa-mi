@@ -8,7 +8,7 @@ const sendBtn = document.getElementById('send-btn');
 const fileUpload = document.getElementById('file-upload');
 
 // OpenAI API Key (Replace with your actual key)
-const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY';
+const OPENAI_API_KEY = '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';
 
 // Transition to Chatbot with Welcome Message
 startBtn.addEventListener('click', () => {
