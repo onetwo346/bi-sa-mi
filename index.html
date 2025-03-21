@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Bi Sa Mi - Study Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add Google Fonts for Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Intro Page -->
+    <div id="intro-page" class="intro-container">
+        <h1>Welcome to Bi Sa Mi</h1>
+        <p>Your Study Genius</p>
+        <button id="start-btn" class="pulse-btn">Tap to Begin</button>
+    </div>
+
+    <!-- Chatbot Page -->
+    <div id="chatbot-page" class="chatbot-container" style="display: none;">
+        <div class="chat-header">
+            <h2>Bi Sa Mi</h2>
+            <p>Your 24/7 Study Buddy</p>
+        </div>
+        <div id="chat-area" class="chat-area"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Ask me anything or upload a problem...">
+            <label for="file-upload" class="upload-btn">📎</label>
+            <input type="file" id="file-upload" accept="image/*" style="display: none;">
+            <button id="send-btn">➡️</button>
+        </div>
+    </div>
+
+    <!-- Add Tesseract.js for OCR -->
+    <script src="https://unpkg.com/tesseract.js@v5.0.0/dist/tesseract.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
