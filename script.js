@@ -7,8 +7,8 @@ const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const fileUpload = document.getElementById('file-upload');
 
-// OpenAI API Key (Replace with your actual key)
-const OPENAI_API_KEY = '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';
+// DeepL API Key (Your provided key)
+const DEEPL_API_KEY = '34b401f4-bf30-4a68-b58d-e232fcd7cd39:fx';
 
 // Chat state
 let isProcessing = false;
@@ -18,14 +18,14 @@ const messageQueue = [];
 startBtn.addEventListener('click', () => {
     introPage.style.display = 'none';
     chatbotPage.style.display = 'flex';
-    addChatBubble('ai-bubble', 'Hey there! I’m Bi Sa Mi, your 24/7 Study Buddy. Ask me anything—math, science, history, or even upload a problem to solve. What’s on your mind?');
-    userInput.focus(); // Improve UX by focusing input immediately
+    addChatBubble('ai-bubble', 'Hey there! I’m Bi Sa Mi, your translation buddy. Send me some text, and I’ll translate it for you. What do you want to translate?');
+    userInput.focus();
 });
 
 // Send Message
 function sendMessage() {
     const message = userInput.value.trim();
-    if (!message || isProcessing) return; // Prevent empty or concurrent messages
+    if (!message || isProcessing) return;
     addChatBubble('user-bubble', message);
     userInput.value = '';
     messageQueue.push(message);
@@ -52,13 +52,12 @@ function addChatBubble(type, content) {
     bubble.classList.add('chat-bubble', type);
     chatArea.appendChild(bubble);
     
-    // Simulate typing for AI responses
     if (type === 'ai-bubble') {
         bubble.textContent = '...';
         setTimeout(() => {
             bubble.textContent = content;
             chatArea.scrollTop = chatArea.scrollHeight;
-        }, 500); // Adjustable delay for realism
+        }, 500);
     } else {
         bubble.textContent = content;
         chatArea.scrollTop = chatArea.scrollHeight;
@@ -72,51 +71,40 @@ async function processNextMessage() {
     const nextItem = messageQueue.shift();
 
     if (typeof nextItem === 'string') {
-        await getAIResponse(nextItem);
+        await getTranslation(nextItem);
     } else if (nextItem.type === 'file') {
         await handleImageUpload(nextItem.file);
     }
 
     isProcessing = false;
-    processNextMessage(); // Process next in queue
+    processNextMessage();
 }
 
-// Get AI Response from OpenAI API
-async function getAIResponse(message) {
+// Get Translation from DeepL API
+async function getTranslation(text) {
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('https://api-free.deepl.com/v2/translate', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are Bi Sa Mi, a friendly and knowledgeable AI study assistant. Help students with educational queries (math, science, history, etc.) in a clear, concise, and engaging way. Always ask a follow-up question like "What’s next?" or suggest related topics to keep the conversation flowing.'
-                    },
-                    {
-                        role: 'user',
-                        content: message
-                    }
-                ],
-                max_tokens: 500,
-                temperature: 0.7
+            body: new URLSearchParams({
+                'auth_key': DEEPL_API_KEY,
+                'text': text,
+                'target_lang': 'EN' // Default to English; adjust as needed
             })
         });
 
         if (!response.ok) {
-            throw new Error(`API request failed: ${response.status}`);
+            throw new Error(`DeepL API request failed: ${response.status}`);
         }
 
         const data = await response.json();
-        const aiReply = data.choices[0].message.content.trim();
-        addChatBubble('ai-bubble', aiReply);
+        const translatedText = data.translations[0].text;
+        addChatBubble('ai-bubble', `Translation: ${translatedText}. What else do you want to translate?`);
     } catch (error) {
-        console.error('Error fetching AI response:', error);
-        addChatBubble('ai-bubble', 'Oops, something went wrong! Let’s try that again—what’s on your mind?');
+        console.error('Error fetching translation:', error);
+        addChatBubble('ai-bubble', 'Oops, something went wrong with the translation! Try again—what do you want to translate?');
     }
 }
 
@@ -124,11 +112,11 @@ async function getAIResponse(message) {
 async function handleImageUpload(file) {
     const fileType = file.type;
     if (fileType.startsWith('image/')) {
-        addChatBubble('ai-bubble', 'I see an image! I can’t process it directly yet. For now, please type out the problem or question from the image. Want help integrating OCR to extract text automatically? What’s next?');
+        addChatBubble('ai-bubble', 'I see an image! I can’t translate it directly yet. Please type out the text you want translated. Want help integrating OCR for this? What’s next?');
     } else {
-        addChatBubble('ai-bubble', 'File uploaded! I can only handle text or images right now. Please type your question or upload an image instead. What’s on your mind?');
+        addChatBubble('ai-bubble', 'File uploaded! I can only handle text or images right now. Please type your text to translate or upload an image. What’s on your mind?');
     }
 }
 
 // Initialize
-userInput.focus(); // Optional: Focus input on page load for immediate typing
+userInput.focus();
