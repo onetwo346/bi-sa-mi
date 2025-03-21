@@ -18,7 +18,7 @@ const messageQueue = [];
 startBtn.addEventListener('click', () => {
     introPage.style.display = 'none';
     chatbotPage.style.display = 'flex';
-    addChatBubble('ai-bubble', 'Hey there! I’m Bi Sa Mi, your translation buddy. Send me some text, and I’ll translate it for you. What do you want to translate?');
+    addChatBubble('ai-bubble', 'Hey there! I’m Bi Sa Mi, your translation buddy, designed by Cosmos Coderr. I can help translate text for you, and I can also answer some basic questions. What do you want to do?');
     userInput.focus();
 });
 
@@ -71,13 +71,42 @@ async function processNextMessage() {
     const nextItem = messageQueue.shift();
 
     if (typeof nextItem === 'string') {
-        await getTranslation(nextItem);
+        await handleMessage(nextItem);
     } else if (nextItem.type === 'file') {
         await handleImageUpload(nextItem.file);
     }
 
     isProcessing = false;
     processNextMessage();
+}
+
+// Handle User Message
+async function handleMessage(message) {
+    const lowerMessage = message.toLowerCase();
+
+    // Handle system-related questions
+    if (lowerMessage.includes('who designed') || lowerMessage.includes('who created') || lowerMessage.includes('your system')) {
+        addChatBubble('ai-bubble', 'I’m Bi Sa Mi, and I was designed by Cosmos Coderr. What else would you like to know?');
+        return;
+    }
+
+    // Handle basic math (e.g., "what is 2+2")
+    if (lowerMessage.includes('what is') && lowerMessage.includes('+')) {
+        try {
+            const numbers = lowerMessage.match(/\d+/g); // Extract numbers
+            if (numbers && numbers.length === 2) {
+                const sum = parseInt(numbers[0]) + parseInt(numbers[1]);
+                addChatBubble('ai-bubble', `The answer is ${sum}. What else would you like to do?`);
+                return;
+            }
+        } catch (error) {
+            addChatBubble('ai-bubble', 'I couldn’t parse that math question. Try something like "What is 2+2?"—what else can I help with?');
+            return;
+        }
+    }
+
+    // Default to translation for other messages
+    await getTranslation(message);
 }
 
 // Get Translation from DeepL API
